@@ -26,6 +26,7 @@ import apiRequests from "../../services/apiRequests.js";
 
 const headers = [
   "ID",
+  "SLIKA",
   "IME",
   "SPOL",
   "PASMINA",
@@ -37,6 +38,7 @@ const headers = [
 
 const propertyNames = [
   "id",
+  "images",
   "name",
   "gender",
   "breed",
@@ -64,8 +66,8 @@ const {
 } = useTableDataHandling(
   apiRequests.getData,
   "dogs",
-  [1, 1, 1, 1, 1, 1, 1, 1],
-  [false, false, false, false, false, false, false, false],
+  [1, undefined, 1, 1, 1, 1, 1, 1, 1],
+  [false, undefined, false, false, false, false, false, false, false],
   headers,
   propertyNames
 );

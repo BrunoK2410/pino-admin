@@ -24,9 +24,9 @@
 import { useTableDataHandling } from "../../hooks/tableDataHandling.js";
 import apiRequests from "../../services/apiRequests.js";
 
-const headers = ["ID", "NASLOV", "DATUM"];
+const headers = ["ID", "SLIKA", "NASLOV", "DATUM OBJAVE"];
 
-const propertyNames = ["id", "title", "date"];
+const propertyNames = ["id", "images", "title", "timestamp"];
 
 const {
   isLoading,
@@ -46,8 +46,8 @@ const {
 } = useTableDataHandling(
   apiRequests.getData,
   "news",
-  [1, 1, 1],
-  [false, false, false],
+  [1, undefined, 1, 1],
+  [false, undefined, false, false],
   headers,
   propertyNames
 );
