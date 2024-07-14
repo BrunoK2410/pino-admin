@@ -12,10 +12,32 @@
 
 <script setup>
 import { useRoute } from "vue-router";
+import { onMounted } from "vue";
 import TheNavbar from "./components/layouts/TheNavbar.vue";
 import LoginPage from "./pages/LoginPage.vue";
+import apiRequests from "./services/apiRequests";
 
 const route = useRoute();
+
+const tokenRefreshInterval = 1 * 60 * 1000;
+
+const scheduleTokenRefresh = (refreshToken) => {
+  setTimeout(async () => {
+    try {
+      const response = await apiRequests.refreshToken(refreshToken);
+      localStorage.setItem("token", response.id_token);
+      scheduleTokenRefresh(response.refresh_token);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+    }
+  }, tokenRefreshInterval);
+};
+onMounted(() => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (refreshToken) {
+    scheduleTokenRefresh(refreshToken);
+  }
+});
 </script>
 
 <style>
@@ -47,6 +69,10 @@ body {
   background-color: #f5f5f5 !important;
 }
 
+a {
+  cursor: pointer;
+}
+
 .bg-red {
   background-color: var(--red-color) !important;
 }
@@ -64,9 +90,9 @@ body {
 }
 
 .form-control:focus {
-  box-shadow: 0 0 0 0.15rem var(--light-pink-color) !important;
+  box-shadow: 0 0 0 0.15rem rgba(244, 163, 158, 0.4) !important;
 
-  border-color: var(--light-pink-color) !important;
+  border-color: rgba(244, 163, 158, 0.4) !important;
 }
 
 .form-check-input:checked {
@@ -79,10 +105,12 @@ body {
 }
 
 .spinner-grow {
-  color: #343a40;
+  color: var(--red-color);
   position: absolute;
   top: 50%;
   left: 50%;
+  margin-left: -1rem;
+  margin-top: -1rem;
   z-index: 1000002;
 }
 
@@ -98,9 +126,17 @@ body {
   background-color: var(--red-color) !important;
 }
 
-.mx-input:hover,
+.mx-input:hover {
+  border-color: #ccc !important;
+}
+
 .mx-input:focus {
-  border-color: var(--red-color) !important;
+  border-color: rgba(244, 163, 158, 0.4) !important;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
 }
 
 .route-enter-from {
