@@ -7,7 +7,8 @@
     >
     <template v-else>
       <div
-        class="d-flex align-items-center justify-content-between flex-wrap my-3 mx-5"
+        class="position-sticky d-flex align-items-center justify-content-between flex-wrap py-3 px-5 z-3"
+        style="top: 80px; background-color: #f5f5f5; border-bottom: 1px solid"
       >
         <h3 class="m-0">{{ route.meta.plural }}</h3>
         <button
@@ -43,11 +44,15 @@
           >{{ addNew }}
         </button>
       </div>
-      <hr />
-      <div class="mt-3" v-if="allItems.length === 0">
+      <div
+        class="position-absolute top-50"
+        style="left: 40%"
+        v-if="allItems.length === 0"
+      >
         U ovoj tablici trenutno nema podataka.
       </div>
       <div class="p-5 mt-3" style="min-height: 200px" v-else>
+        <div id="alertPlaceholder"></div>
         <div class="d-flex flex-column flex-md-row align-items-md-center mb-3">
           <div
             class="input-group me-md-3 py-2"
@@ -182,18 +187,68 @@
                     </g>
                   </svg>
                 </th>
+                <th>OBRIŠI ?</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(row, rowIndex) in rows" :key="rowIndex">
+              <tr v-for="(row, rowIndex) in rows" :key="row.id">
                 <td
                   v-for="(propertyName, propIndex) in propertyNames"
                   :key="propIndex"
                   :class="{
                     'fw-semibold': propIndex === 0,
                   }"
+                  :style="{
+                    height: propIndex === 1 ? '150px' : 'auto',
+                  }"
                 >
-                  {{ getProcessedValue(row[propertyName], propertyName) }}
+                  <template v-if="propIndex === 0">
+                    <a
+                      @click="
+                        route.name !== 'News'
+                          ? (selectedAnimal = row)
+                          : (selectedNews = row)
+                      "
+                      data-bs-toggle="modal"
+                      data-bs-target="#form-dialog"
+                      >{{
+                        getProcessedValue(row[propertyName], propertyName)
+                      }}</a
+                    >
+                  </template>
+                  <template v-else-if="propIndex === 1">
+                    <div
+                      v-if="!imageLoaded[rowIndex]"
+                      class="spinner-grow"
+                      role="status"
+                      style="z-index: 0"
+                    >
+                      <span class="visually-hidden">Loading...</span> //
+                    </div>
+                    <img
+                      :src="row[propertyName][0]"
+                      :class="{ 'd-none': !imageLoaded[rowIndex] }"
+                      class="img-fluid"
+                      style="max-width: 200px"
+                      rel="preload"
+                      @load="handleImageLoad(rowIndex)"
+                    />
+                  </template>
+                  <template v-else>
+                    {{
+                      getProcessedValue(row[propertyName], propertyName, row)
+                    }}</template
+                  >
+                </td>
+                <td>
+                  <button
+                    id="delete"
+                    class="btn btn-outline-danger"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#delete-dialog"
+                    @click="openDeleteDialog(row)"
+                  ></button>
                 </td>
               </tr>
             </tbody>
@@ -206,18 +261,53 @@
           @increment="$emit('increment')"
           @active-page="handleActivePage"
         ></the-pagination>
-        <DogForm></DogForm></div
-    ></template>
+        <AnimalForm
+          :selectedAnimal="selectedAnimal"
+          @closed="selectedAnimal = ''"
+          @open-delete-dialog="triggerOpenDeleteDialog"
+          v-if="route.name !== 'News'"
+        ></AnimalForm
+        ><NewsForm
+          :selectedNews="selectedNews"
+          @closed="selectedNews = ''"
+          @open-delete-dialog="triggerOpenDeleteDialog"
+          v-else
+        >
+        </NewsForm>
+        <the-modal
+          :modalId="'delete-dialog'"
+          :modalTitle="deleteModalTitle"
+          :submitted="isLoading"
+        >
+          <p class="my-2">
+            Jeste li sigurni da želite obrisati
+            {{
+              route.name === "Dogs"
+                ? "psa"
+                : route.name === "Cats"
+                ? "mačku"
+                : "članak"
+            }}
+            - <span class="fw-bold">"{{ subject }}"</span> ?
+          </p>
+          <template #footer>
+            <button class="btn btn-danger" @click="deleteItem">Obriši</button>
+          </template></the-modal
+        >
+      </div></template
+    >
   </div>
 </template>
 
 <script setup>
 import { defineProps, defineEmits, watch, ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import ThePagination from "./ThePagination.vue";
-import DogForm from "../../pages/DogForm.vue";
+import AnimalForm from "../../pages/forms/AnimalForm.vue";
+import NewsForm from "../../pages/forms/NewsForm.vue";
+import apiRequests from "../../services/apiRequests.js";
 
-defineProps({
+const props = defineProps({
   isLoading: Boolean,
   subject: String,
   headers: Array,
@@ -243,7 +333,19 @@ const emit = defineEmits([
 
 const route = useRoute();
 
+const router = useRouter();
+
 const searchInput = ref("");
+
+const selectedAnimal = ref("");
+
+const selectedNews = ref("");
+
+const imageLoaded = ref(Array(props.rows.length).fill(false));
+
+const handleImageLoad = (rowIndex) => {
+  imageLoaded.value[rowIndex] = true;
+};
 
 watch(searchInput, (newValue) => {
   emit("update:modelValue", newValue);
@@ -270,16 +372,18 @@ const setMinMaxWidth = (index) => {
     case 1:
       return 200;
     case 2:
-      return 125;
+      return 200;
     case 3:
-      return 250;
+      return route.name !== "News" ? 125 : 200;
     case 4:
       return 250;
     case 5:
-      return 150;
+      return 250;
     case 6:
       return 200;
     case 7:
+      return 200;
+    case 8:
       return 250;
   }
 };
@@ -322,6 +426,7 @@ const getProcessedValue = (value, property) => {
       return "";
     }
     let joinedString = value.join(",");
+
     let modifiedString = joinedString
       .split(",")
       .map((word) => {
@@ -330,7 +435,43 @@ const getProcessedValue = (value, property) => {
       .join(",");
 
     return modifiedString;
+  } else if (property === "gender") {
+    if (value === "F") {
+      return "Ž";
+    } else return value;
+  } else if (property === "timestamp") {
+    const date = new Date(value);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
   } else return value;
+};
+
+const deleteModalTitle = ref("");
+const deleteId = ref("");
+const isLoading = ref(false);
+const subject = ref("");
+
+const openDeleteDialog = (row) => {
+  subject.value = route.name !== "News" ? row.name : row.title;
+  deleteModalTitle.value = `Obriši "${subject.value}" ?`;
+  deleteId.value = row.id;
+};
+
+const deleteItem = async () => {
+  isLoading.value = true;
+  await apiRequests.delete(
+    route.name === "Dogs" ? "dogs" : route.name === "Cats" ? "cats" : "news",
+    deleteId.value
+  );
+  localStorage.setItem("action", "delete");
+  localStorage.setItem("item", subject.value);
+  router.go(0);
+};
+
+const triggerOpenDeleteDialog = (row) => {
+  openDeleteDialog(row);
 };
 </script>
 
@@ -344,6 +485,7 @@ thead tr th {
 td {
   vertical-align: middle;
   text-align: center;
+  position: relative;
 }
 
 .table {
@@ -371,5 +513,19 @@ th:not(.sortable) {
 thead svg {
   position: absolute;
   right: 10px;
+}
+
+#delete::before {
+  content: "";
+  display: block;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg width='24px' height='24px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' stroke='%23000000'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M10 11V17' stroke='%23dc3545' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M14 11V17' stroke='%23dc3545' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M4 7H20' stroke='%23dc3545' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z' stroke='%23dc3545' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z' stroke='%23dc3545' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+}
+
+#delete:hover::before {
+  background-image: url("data:image/svg+xml,%3Csvg width='24px' height='24px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' stroke='%23000000'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M10 11V17' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M14 11V17' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M4 7H20' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
 }
 </style>
