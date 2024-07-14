@@ -31,6 +31,11 @@
           :class="{ active: route.path === '/news' }"
           ><span id="news"></span><span>Novosti</span></router-link
         >
+        <a
+          class="nav-link text-center d-flex flex-column align-items-center justify-content-center px-3"
+          @click="logout"
+          ><span id="logout"></span><span>Odjava</span></a
+        >
       </div>
     </div>
   </nav>
@@ -82,12 +87,27 @@
           ><span id="news"></span><span>Novosti</span></router-link
         >
       </li>
+      <li class="nav-item mb-3" data-bs-dismiss="offcanvas">
+        <a
+          @click="logout"
+          class="nav-link text-center d-flex flex-column align-items-center justify-content-center px-3"
+          ><span id="logout"></span><span>Odjava</span></a
+        >
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup>
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+
+const router = useRouter();
+
+const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  router.replace("/login");
+};
 
 const route = useRoute();
 </script>
@@ -130,9 +150,16 @@ li {
   background-image: url("data:image/svg+xml,%3Csvg width='32px' height='32px' viewBox='0 0 32 32' enable-background='new 0 0 32 32' id='Stock_cut' version='1.1' xml:space='preserve' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' fill='%23ffffff'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cdesc%3E%3C/desc%3E%3Cg%3E%3Cpath d='M27,5V3H1v26 c0,1.105,0.895,2,2,2h26c1.105,0,2-0.895,2-2V5H27z' fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2'%3E%3C/path%3E%3Crect fill='none' height='8' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' width='10' x='5' y='19'%3E%3C/rect%3E%3Cline fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='27' x2='27' y1='5' y2='24'%3E%3C/line%3E%3Cline fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='27' x2='27' y1='26' y2='28'%3E%3C/line%3E%3Cline fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='4' x2='24' y1='11' y2='11'%3E%3C/line%3E%3Cline fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='4' x2='24' y1='7' y2='7'%3E%3C/line%3E%3Cline fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='4' x2='24' y1='15' y2='15'%3E%3C/line%3E%3Cline fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='18' x2='24' y1='19' y2='19'%3E%3C/line%3E%3Cline fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='18' x2='24' y1='23' y2='23'%3E%3C/line%3E%3Cline fill='none' stroke='%23ffffff' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='18' x2='24' y1='27' y2='27'%3E%3C/line%3E%3C/g%3E%3C/g%3E%3C/svg%3E") !important;
 }
 
+.nav-link.active #logout::before,
+.nav-link:focus #logout::before,
+.nav-link:hover #logout::before {
+  background-image: url("data:image/svg+xml,%3Csvg width='32px' height='32px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' stroke='%23000000'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M21 12L13 12' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M18 15L20.913 12.087V12.087C20.961 12.039 20.961 11.961 20.913 11.913V11.913L18 9' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M16 5V4.5V4.5C16 3.67157 15.3284 3 14.5 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H14.5C15.3284 21 16 20.3284 16 19.5V19.5V19' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+}
+
 #dog::before,
 #cat::before,
-#news::before {
+#news::before,
+#logout::before {
   content: "";
   display: block;
   background-repeat: no-repeat;
@@ -151,5 +178,9 @@ li {
 
 #news::before {
   background-image: url("data:image/svg+xml,%3Csvg width='32px' height='32px' viewBox='0 0 32 32' enable-background='new 0 0 32 32' id='Stock_cut' version='1.1' xml:space='preserve' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' fill='%23000000'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cdesc%3E%3C/desc%3E%3Cg%3E%3Cpath d='M27,5V3H1v26 c0,1.105,0.895,2,2,2h26c1.105,0,2-0.895,2-2V5H27z' fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2'%3E%3C/path%3E%3Crect fill='none' height='8' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' width='10' x='5' y='19'%3E%3C/rect%3E%3Cline fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='27' x2='27' y1='5' y2='24'%3E%3C/line%3E%3Cline fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='27' x2='27' y1='26' y2='28'%3E%3C/line%3E%3Cline fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='4' x2='24' y1='11' y2='11'%3E%3C/line%3E%3Cline fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='4' x2='24' y1='7' y2='7'%3E%3C/line%3E%3Cline fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='4' x2='24' y1='15' y2='15'%3E%3C/line%3E%3Cline fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='18' x2='24' y1='19' y2='19'%3E%3C/line%3E%3Cline fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='18' x2='24' y1='23' y2='23'%3E%3C/line%3E%3Cline fill='none' stroke='%23000000' stroke-linejoin='round' stroke-miterlimit='10' stroke-width='2' x1='18' x2='24' y1='27' y2='27'%3E%3C/line%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+#logout::before {
+  background-image: url("data:image/svg+xml,%3Csvg width='32px' height='32px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M21 12L13 12' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M18 15L20.913 12.087V12.087C20.961 12.039 20.961 11.961 20.913 11.913V11.913L18 9' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M16 5V4.5V4.5C16 3.67157 15.3284 3 14.5 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H14.5C15.3284 21 16 20.3284 16 19.5V19.5V19' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
 }
 </style>
