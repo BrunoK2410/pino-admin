@@ -65,11 +65,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import apiRequests from "../services/apiRequests.js";
-
-const router = useRouter();
-console.log(router);
 
 const showError = ref(false);
 
@@ -85,10 +81,12 @@ const login = async () => {
       .login({
         email: email.value,
         password: password.value,
+        returnSecureToken: true,
       })
       .then((response) => {
         localStorage.setItem("token", response.idToken);
-        router.replace("/dogs");
+        localStorage.setItem("refreshToken", response.refreshToken);
+        location.reload();
       });
   } catch (error) {
     showError.value = true;
@@ -103,8 +101,7 @@ const login = async () => {
 <style scoped>
 .form-control:focus {
   box-shadow: 0 -0.15rem var(--light-pink-color),
-    /* Top shadow */ 0.15rem 0 var(--light-pink-color),
-    /* Right shadow */ 0 0.15rem var(--light-pink-color); /* Bottom shadow */
+    0.15rem 0 var(--light-pink-color), 0 0.15rem var(--light-pink-color);
   border-color: var(--light-pink-color);
 }
 button:hover {
