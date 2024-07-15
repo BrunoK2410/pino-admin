@@ -3,6 +3,7 @@ import LoginPage from "../src/pages/LoginPage.vue";
 import ListDogsPage from "./pages/list/ListDogsPage.vue";
 import ListCatsPage from "./pages/list/ListCatsPage.vue";
 import ListNewsPage from "./pages/list/ListNewsPage.vue";
+import NotFoundPage from "./pages/NotFoundPage.vue";
 
 const routes = [
   {
@@ -44,6 +45,7 @@ const routes = [
       plural: "Novosti",
     },
   },
+  { path: "/:notFound(.*)", component: NotFoundPage },
 ];
 
 const router = createRouter({
