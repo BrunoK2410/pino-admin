@@ -44,11 +44,7 @@
           >{{ addNew }}
         </button>
       </div>
-      <div
-        class="position-absolute top-50"
-        style="left: 40%"
-        v-if="allItems.length === 0"
-      >
+      <div class="text-center w-100 mt-5" style="width: 200px" v-if="hasItems">
         U ovoj tablici trenutno nema podataka.
       </div>
       <div class="p-5 mt-3" style="min-height: 200px" v-else>
@@ -223,14 +219,20 @@
                       role="status"
                       style="z-index: 0"
                     >
-                      <span class="visually-hidden">Loading...</span> //
+                      <span class="visually-hidden">Loading...</span>
                     </div>
                     <img
+                      :key="reRenderImage"
                       :src="row[propertyName][0]"
-                      :class="{ 'd-none': !imageLoaded[rowIndex] }"
                       class="img-fluid"
-                      style="max-width: 200px"
-                      rel="preload"
+                      :class="{ 'fade-in': imageLoaded[rowIndex] }"
+                      style="
+                        min-width: 200px;
+                        max-width: 200px;
+
+                        opacity: 0;
+                        transition: opacity 0.5s ease-in-out;
+                      "
                       @load="handleImageLoad(rowIndex)"
                     />
                   </template>
@@ -343,9 +345,20 @@ const selectedNews = ref("");
 
 const imageLoaded = ref(Array(props.rows.length).fill(false));
 
+const reRenderImage = ref(0);
+
 const handleImageLoad = (rowIndex) => {
+  console.log(rowIndex);
   imageLoaded.value[rowIndex] = true;
 };
+
+watch(
+  () => props.rows,
+  (newRows) => {
+    reRenderImage.value++;
+    imageLoaded.value = Array(newRows.length).fill(false);
+  }
+);
 
 watch(searchInput, (newValue) => {
   emit("update:modelValue", newValue);
@@ -387,6 +400,8 @@ const setMinMaxWidth = (index) => {
       return 250;
   }
 };
+
+const hasItems = ref(props.allItems.length !== 0);
 
 const addNew = computed(() => {
   if (route.path === "/dogs") {
@@ -527,5 +542,9 @@ thead svg {
 
 #delete:hover::before {
   background-image: url("data:image/svg+xml,%3Csvg width='24px' height='24px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg' stroke='%23000000'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M10 11V17' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M14 11V17' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M4 7H20' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M6 7H12H18V18C18 19.6569 16.6569 21 15 21H9C7.34315 21 6 19.6569 6 18V7Z' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3Cpath d='M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+}
+
+.fade-in {
+  opacity: 1 !important;
 }
 </style>

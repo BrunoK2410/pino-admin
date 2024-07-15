@@ -26,8 +26,8 @@ export function useTableDataHandling(
       controllers.push(controller);
       const data = await getFunction(type, signal);
       items.value = Array.isArray(data) ? data : [data];
-      initialItems.value = [...items.value];
       totalItems.value = [...items.value];
+      initialItems.value = [...items.value];
     } catch (error) {
       if (error.name !== "AbortError") {
         console.error(error);
