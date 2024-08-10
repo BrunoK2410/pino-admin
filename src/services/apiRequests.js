@@ -1,19 +1,4 @@
 class ApiRequests {
-  login(data) {
-    return fetch(
-      "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDEzVslo3fjmyLZm02vAJb0BYHznd03NPc",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    ).then((response) => {
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      return response.json();
-    });
-  }
-
   refreshToken(refreshToken) {
     return fetch(
       "https://identitytoolkit.googleapis.com/v1/token?key=AIzaSyDEzVslo3fjmyLZm02vAJb0BYHznd03NPc",
