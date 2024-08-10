@@ -19,7 +19,7 @@ import apiRequests from "./services/apiRequests";
 
 const route = useRoute();
 
-const tokenRefreshInterval = 1 * 60 * 1000;
+const tokenRefreshInterval = 30 * 60 * 1000;
 
 const scheduleTokenRefresh = (refreshToken) => {
   setTimeout(async () => {

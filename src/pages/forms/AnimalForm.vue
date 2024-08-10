@@ -575,6 +575,7 @@ const addAnimal = async () => {
         await uploadTask;
 
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
         uploadedImages.push(downloadURL);
       }
 

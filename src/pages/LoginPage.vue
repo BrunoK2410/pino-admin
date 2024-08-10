@@ -65,7 +65,8 @@
 
 <script setup>
 import { ref } from "vue";
-import apiRequests from "../services/apiRequests.js";
+
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const showError = ref(false);
 
@@ -77,17 +78,18 @@ const password = ref("");
 const login = async () => {
   try {
     isLoading.value = true;
-    await apiRequests
-      .login({
-        email: email.value,
-        password: password.value,
-        returnSecureToken: true,
-      })
-      .then((response) => {
-        localStorage.setItem("token", response.idToken);
-        localStorage.setItem("refreshToken", response.refreshToken);
+    const auth = getAuth();
+    await signInWithEmailAndPassword(auth, email.value, password.value).then(
+      (response) => {
+        console.log(response);
+        localStorage.setItem("token", response._tokenResponse.idToken);
+        localStorage.setItem(
+          "refreshToken",
+          response._tokenResponse.refreshToken
+        );
         location.reload();
-      });
+      }
+    );
   } catch (error) {
     showError.value = true;
   } finally {
