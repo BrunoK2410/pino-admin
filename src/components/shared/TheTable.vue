@@ -348,7 +348,6 @@ const imageLoaded = ref(Array(props.rows.length).fill(false));
 const reRenderImage = ref(0);
 
 const handleImageLoad = (rowIndex) => {
-  console.log(rowIndex);
   imageLoaded.value[rowIndex] = true;
 };
 
