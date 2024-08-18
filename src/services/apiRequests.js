@@ -1,25 +1,4 @@
 class ApiRequests {
-  refreshToken(refreshToken) {
-    return fetch(
-      "https://identitytoolkit.googleapis.com/v1/token?key=AIzaSyDEzVslo3fjmyLZm02vAJb0BYHznd03NPc",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          grant_type: "refresh_token",
-          refresh_token: refreshToken,
-        }),
-      }
-    ).then((response) => {
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      return response.json();
-    });
-  }
-
   getData(type, signal) {
     return fetch(
       `https://pino-nmpb-default-rtdb.europe-west1.firebasedatabase.app/${type}.json`,
