@@ -12,30 +12,28 @@
 
 <script setup>
 import { useRoute } from "vue-router";
-import { onMounted } from "vue";
+import { getAuth } from "firebase/auth";
 import TheNavbar from "./components/layouts/TheNavbar.vue";
 import LoginPage from "./pages/LoginPage.vue";
-import apiRequests from "./services/apiRequests";
+import { onMounted } from "vue";
 
 const route = useRoute();
 
-const tokenRefreshInterval = 30 * 60 * 1000;
-
-const scheduleTokenRefresh = (refreshToken) => {
+const setTokenRefresh = () => {
   setTimeout(async () => {
     try {
-      const response = await apiRequests.refreshToken(refreshToken);
-      localStorage.setItem("token", response.id_token);
-      scheduleTokenRefresh(response.refresh_token);
+      const idToken = await getAuth().currentUser.getIdToken(true);
+      localStorage.setItem("token", idToken);
+      setTokenRefresh();
     } catch (error) {
-      console.error("Failed to refresh token:", error);
+      console.error("Error refreshing token:", error);
     }
-  }, tokenRefreshInterval);
+  }, 3000000);
 };
+
 onMounted(() => {
-  const refreshToken = localStorage.getItem("refreshToken");
-  if (refreshToken) {
-    scheduleTokenRefresh(refreshToken);
+  if (getAuth().currentUser) {
+    setTokenRefresh();
   }
 });
 </script>
