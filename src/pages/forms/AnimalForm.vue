@@ -307,6 +307,7 @@ import {
 import { useRoute, useRouter } from "vue-router";
 import apiRequests from "../../services/apiRequests.js";
 import { storage } from "../../firebase.js";
+
 import {
   ref as firebaseStorageRef,
   uploadBytesResumable,
@@ -560,11 +561,11 @@ const addAnimal = async () => {
     try {
       numOfCalls.value++;
       formSubmitted.value = true;
+
       const uploadedImages = [];
       images.value = images.value.filter(
         (image) => Object.keys(image).length !== 2
       );
-
       for (const image of images.value) {
         const storageRef = firebaseStorageRef(
           storage,
@@ -578,7 +579,6 @@ const addAnimal = async () => {
 
         uploadedImages.push(downloadURL);
       }
-
       const animalData = {
         name: name.value,
         gender: gender.value,
@@ -595,7 +595,6 @@ const addAnimal = async () => {
         images: [...uploadedImages],
         timestamp: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
       };
-
       await apiRequests.addNew(
         route.name === "Dogs" ? "dogs" : "cats",
         animalData,
@@ -619,6 +618,7 @@ const updateAnimal = async () => {
     try {
       numOfCalls.value++;
       formSubmitted.value = true;
+
       const uploadedImages = [];
 
       for (const image of images.value) {

@@ -207,6 +207,7 @@ import { useRouter } from "vue-router";
 import apiRequests from "../../services/apiRequests.js";
 import { Modal } from "bootstrap";
 import { storage } from "../../firebase.js";
+
 import {
   ref as firebaseStorageRef,
   uploadBytesResumable,
@@ -440,6 +441,7 @@ const addNews = async () => {
     try {
       numOfCalls.value++;
       formSubmitted.value = true;
+
       const uploadedImages = [];
       images.value = images.value.filter(
         (image) => Object.keys(image).length !== 2
@@ -484,8 +486,8 @@ const updateNews = async () => {
     try {
       numOfCalls.value++;
       formSubmitted.value = true;
-      const uploadedImages = [];
 
+      const uploadedImages = [];
       for (const image of images.value) {
         const storageRef = firebaseStorageRef(
           storage,
