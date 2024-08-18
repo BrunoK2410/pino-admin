@@ -83,10 +83,6 @@ const login = async () => {
       (response) => {
         console.log(response);
         localStorage.setItem("token", response._tokenResponse.idToken);
-        localStorage.setItem(
-          "refreshToken",
-          response._tokenResponse.refreshToken
-        );
         location.reload();
       }
     );
